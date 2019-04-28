@@ -31,9 +31,8 @@ export default {
             this.axios.post("https://elm.cangdu.org/admin/login",obj)
             .then((res)=>{
                 if(res){
-                    // console.log(res.data);
                     if(res.data.status==1) {
-                        this.$router.push({name: "data"});
+                        this.$router.push({name:'menu'});
                     }
                     if(res.data.status==0){
                         console.log(res.data.message);

@@ -22,7 +22,19 @@ const order = resolve => require(['../page/project/order.vue'], resolve)
 const profile = resolve => require(['../page/project/profile.vue'], resolve)
 const aaa = resolve => require(['../page/project/aaa.vue'], resolve)
 const manage = resolve => require(['../page/elephp/manage.vue'], resolve)
-const data = resolve => require(['../page/elephp/data.vue'], resolve)
+const menu = resolve => require(['../page/elephp/menu.vue'], resolve)
+const main = resolve => require(['../page/elephp/main.vue'], resolve)
+const userlist = resolve => require(['../page/elephp/main/userList.vue'], resolve)
+const shoplist = resolve => require(['../page/elephp/main/shopList.vue'], resolve)
+const foodlist = resolve => require(['../page/elephp/main/foodList.vue'], resolve)
+const orderlist = resolve => require(['../page/elephp/main/orderList.vue'], resolve)
+const adminlist = resolve => require(['../page/elephp/main/adminList.vue'], resolve)
+const addshop = resolve => require(['../page/elephp/main/addShop.vue'], resolve)
+const addgood = resolve => require(['../page/elephp/main/addGoods.vue'], resolve)
+const visitor = resolve => require(['../page/elephp/main/visitor.vue'], resolve)
+const vueedit = resolve => require(['../page/elephp/main/vueEdit.vue'], resolve)
+const adminset = resolve => require(['../page/elephp/main/adminSet.vue'], resolve)
+const explain = resolve => require(['../page/elephp/main/explain.vue'], resolve)
 
 
 Vue.use(Router)
@@ -87,12 +99,75 @@ let router = new Router({
           path: '/manage',
           name: 'manage',
           component: manage,
-        }, 
+        },
         {
-          path: '/data',
-          name: 'data',
-          component: data,
-        }
+          path: '/menu',
+          name: 'menu',
+          component: menu,
+          redirect:'/main',
+          children:[
+            {
+              path: '/main',
+              name: 'main',
+              component: main,
+            },
+            {
+              path: '/userlist',
+              name: 'userlist',
+              component: userlist,
+            },
+            {
+              path: '/shoplist',
+              name: 'shoplist',
+              component: shoplist,
+            },
+            {
+              path: '/foodlist',
+              name: 'foodlist',
+              component: foodlist,
+            },
+            {
+              path: '/orderlist',
+              name: 'orderlist',
+              component: orderlist,
+            },
+            {
+              path: '/adminlist',
+              name: 'adminlist',
+              component: adminlist,
+            },
+            {
+              path: '/addshop',
+              name: 'addshop',
+              component: addshop,
+            },
+            {
+              path: '/addgood',
+              name: 'addgood',
+              component: addgood,
+            },
+            {
+              path: '/visitor',
+              name: 'visitor',
+              component: visitor,
+            },
+            {
+              path: '/vueedit',
+              name: 'vueedit',
+              component: vueedit,
+            },
+            {
+              path: '/adminset',
+              name: 'adminset',
+              component: adminset,
+            },
+            {
+              path: '/explain',
+              name: 'explain',
+              component: explain,
+            },
+          ]
+        },
       ]
     },
 

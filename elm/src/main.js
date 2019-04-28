@@ -9,6 +9,9 @@ import store from './store/index.js'
 import animated from 'animate.css'
 Vue.use(animated)
 
+import echarts from 'echarts'
+Vue.prototype.$echarts=echarts
+
 if('addEventListener' in document){
   document.addEventListener('DOMContentLoaded',function(){
     FastClick.attach(document.body);
