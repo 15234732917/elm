@@ -40,13 +40,13 @@ export default {
   },
   data() {
     return {
-      headTitle: "",
+      // headTitle: "",
       goback: false,
       signinUp: false,
       list: "",
       search: "",
       placeHistory: [],
-      placelist: [],
+      placelist: [],  //搜索关键字出来内容
       historytitle: true,
       placenone: false
     };
@@ -79,7 +79,7 @@ export default {
       }
     },
     nextpage(index, item) {
-      let history = localStorage.getItem("placeHistory");
+      let history = localStorage.getItem("placeHistory"); 
       if (history) {
         let checkrepeat = false;
         this.placeHistory = JSON.parse(history);
@@ -96,6 +96,7 @@ export default {
         this.placeHistory.push(item);
       }
       localStorage.setItem("placeHistory", JSON.stringify(this.placeHistory));
+      localStorage.setItem('geohash',JSON.stringify(this.placelist[index].geohash))
       this.$router.push({
         name: "msite",
         params: { geohash: this.placelist[index].geohash }

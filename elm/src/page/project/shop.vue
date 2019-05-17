@@ -1,26 +1,28 @@
 <template>
   <div class="box">
-    <header>
+    <Load v-if="num !== 1"></Load>
+    <div class="box1" v-if="shop.length" type='1'>
+      <header>
       <span class="user_lift" @click="back">
         <i class="fa fa-fw fa-chevron-left"></i>
       </span>
       <dl>
         <dt>
-          <img :src="'http://elm.cangdu.org/img/'+this.userlist.image_path">
+          <img :src="'http://elm.cangdu.org/img/' + this.userlist.image_path" />
         </dt>
         <dd>
-          <p>{{this.userlist.name}}</p>
+          <p>{{ this.userlist.name }}</p>
           <p>
             <span>商家配送/</span>
             <span>分钟送达/</span>
             <span>配送费￥1</span>
           </p>
-          <p>公告：{{this.userlist.promotion_info}}</p>
+          <p>公告：{{ this.userlist.promotion_info }}</p>
         </dd>
       </dl>
       <p class="bbb" v-if="activity">
-        <span>{{this.activitylist.icon_name}}</span>
-        <span>{{this.activitylist.description}}(APP专享)</span>
+        <span>{{ this.activitylist.icon_name }}</span>
+        <span>{{ this.activitylist.description }}(APP专享)</span>
       </p>
     </header>
     <div class="coe">
@@ -30,51 +32,92 @@
       </ul>
     </div>
     <section>
-      <div class="con">
+      <div class="con" v-cloak>
         <div class="left" ref="left">
           <ul>
             <li
-              v-for="(item,index) in shop"
+              v-for="(item, index) in shop"
               :key="index"
-              :class="{click:selector==index}"
-              @click="toHash(item,index)"
-            ><a :href="'#'+item.id">{{item.name}}</a></li>
+              class="menu-item"
+              :class="{ ' current': currentIndex === index }"
+              @click="selectMenu(index, $event)"
+              v-cloak
+            >
+              <!-- <a :href="'#'+item.id">{{item.name}}</a> -->
+              <span class="text">
+                <span
+                  v-show="item.type > 0"
+                  class="icon"
+                  :class="classMap[item.type]"
+                  v-cloak
+                ></span>
+                {{ item.name }}
+              </span>
+            </li>
           </ul>
         </div>
-        <div class="right" @scroll="listScroll">
+        <div class="right" ref="right">
           <ul>
-            <li v-for="(good,index1) in shop" :key="index1" :id="good.name">
-              <h1 class="goodTitle">
-                <a :name="good.id">{{good.name}}</a>
-                <span>{{good.description}}</span>
+            <li
+              v-for="(good, index1) in shop"
+              :key="index1"
+              class=" food-list-hook"
+              v-cloak
+            >
+              <h1
+                class="goodTitle"
+                :class="{ current: currentIndex === index1 }"
+              >
+                {{ good.name }}
+                <!-- <a :name="good.id">{{good.name}}</a> -->
+                <span>{{ good.description }}</span>
               </h1>
-              <ul class="good" v-for="(item,index2) in good.foods" :key="index2">
+              <ul
+                class="good"
+                v-for="(item, index2) in good.foods"
+                :key="index2"
+              >
                 <li>
                   <dl>
                     <dt>
-                      <img :src="'//elm.cangdu.org/img/'+item.image_path">
+                      <img
+                        :src="'https://elm.cangdu.org/img/' + item.image_path"
+                      />
                     </dt>
                     <dd>
-                      <h2>{{item.name}}</h2>
-                      <p>{{item.description}}</p>
-                      <p>{{item.tips}}</p>
-                      <!-- <p>
-                        <span v-for="i in it.specfoods">￥{{i.price}}</span>
-                      </p>-->
+                      <h2>{{ item.name }}</h2>
+                      <p>{{ item.description }}</p>
+                      <p>
+                        <span class="count">月售{{ item.month_sales }}份</span>
+                        <span>好评率{{ item.satisfy_rate }}%</span>
+                      </p>
+                      <p>
+                        <span>{{ item.price }}</span>
+                      </p>
                     </dd>
                   </dl>
                 </li>
                 <li>
                   <div class="pre">
                     <span>￥</span>
-                    <span v-if="index3==0" v-for="(i,index3) in item.specfoods">{{i.price}}</span>起
+                    <span
+                      v-if="index3 == 0"
+                      v-for="(i, index3) in item.specfoods"
+                      >{{ i.price }}</span
+                    >起
                   </div>
                   <div>
-                    <div :class="{pop: true, mov: item.__v>0}">
-                      <i class="fa fa-fw fa-minus-circle" @click="reduce(item)"></i>
-                      {{item.__v}}
+                    <div :class="{ pop: true, mov: item.num > 0 }">
+                      <i
+                        class="fa fa-fw fa-minus-circle"
+                        @click="reduce(item)"
+                      ></i>
+                      {{ item.num }}
                     </div>
-                    <i class="fa fa-fw fa-plus-circle" @click="increase(item, $event)"></i>
+                    <i
+                      class="fa fa-fw fa-plus-circle"
+                      @click="increase(item, $event)"
+                    ></i>
                   </div>
                 </li>
               </ul>
@@ -103,7 +146,7 @@
       </div>
     </section>
 
-     <!-- 运动的小球 -->
+    <!-- 运动的小球 -->
     <div id="points">
       <div class="pointOuter pointPre">
         <div class="point-inner"></div>
@@ -130,58 +173,133 @@
 
     <div class="footer">
       <div>
-        <i class="fa fa-fw fa-shopping-cart"></i>
+        <span :class="this.allnumber > 0 ? 'span2' : 'span1'">
+          <i class="fa fa-fw fa-shopping-cart" @click="shopcar"></i>
+        </span>
         <!--记录订单总数  -->
-        <div class="total" v-show="total>0">{{total}}</div>
+        <div class="total" v-show="allnumber > 0">{{ allnumber }}</div>
+        <div class="pri">
+           <p><span>￥</span><span>{{allprice}}</span></p>
+           <p><span>配送费￥5</span></p>
+        </div>
       </div>
-      <div :class="{pay: true, notPay: total==0}">去结算</div>
+      <div :class="{ pay: true, notPay: allnumber == 0 }" @click="pay">去结算</div>
     </div>
-    <!-- <footer>
-      <div>
-        <i class="fa fa-fw fa-shopping-cart"></i>
-        <div class="total" v-show="total>0">{{total}}</div>
-        <p>
-          <span>￥0.00</span>
-          <span>配送费￥5</span>
-        </p>
+    <div class="shopcar" v-show="isshow">
+      <div class="gwc">
+        <div class="gwc_shop">
+          <div class="header_top">
+            <h3>我的购物车</h3>
+            <p @click="clear">清空</p>
+          </div>
+          <div class="footer_down">
+            <ul>
+              <li v-for="item in shopCar">
+                <p>{{ item.name }}</p>
+                <p>￥{{ item.specfoods[0].price }}</p>
+                <p>
+                  <span
+                    ><i
+                      class="fa fa-fw fa-minus-circle"
+                      @click="reduce(item)"
+                    ></i
+                  ></span>
+                  <span>{{ item.num }}</span>
+                  <span
+                    ><i
+                      class="fa fa-fw fa-plus-circle"
+                      @click="increase(item, $event)"
+                    ></i
+                  ></span>
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <div :class="{pay:true,notPay:total==0}">
-        <p>去结算</p>
-      </div>
-    </footer> -->
+    </div>
+    </div>
+    <ul v-else class="animation_opactiy">
+        <li class="list_back_li" v-for="item in 1" :key="item">
+            <img src="../../images/src/shop_back_svg.svg" class="list_back_svg">
+        </li>
+    </ul>
   </div>
 </template>
 
 <script>
+import BScroll from "better-scroll";
+import Load from "./animeta";
 export default {
+  components: {
+    Load
+  },
   data() {
     return {
+      msg: "con",
       shop: [],
+      listHeight: [],
+      scrollY: 0,
       userlist: "",
       activitylist: "",
       activity: true,
-      selector: 0,
-      total: 0
+      // total: 0,
+      num: 1,
+      isshow: false,
+      n: 1,
+      shopCar: [],
+      allnumber:0,
+      allprice:0,
     };
   },
   methods: {
+    cunshopcar(){
+       let shop=JSON.parse(localStorage.getItem('shopCar'))
+       let all=JSON.parse(localStorage.getItem('All'))
+       if(shop.length){
+         this.shopCar=shop
+         this.allnumber=all.Allnum
+         this.allprice=all.Allprice
+       }else{
+         this.allnumber=0
+         this.allprice=0
+       }
+    },
+    shopcar() {
+      this.n++;
+      if (this.n % 2 == 1) {
+        this.isshow = true;
+      } else {
+        this.isshow = false;
+      }
+    },
+    pay() {
+      if (this.$store.state.Allnum > 0) {
+        this.$router.push({ name: "confirmOrder" });
+      }
+    },
     back() {
       this.$router.go(-1);
     },
-    toHash(item, index) {
-      this.selector = index;
-      window.location.hash = item;
-      this.$refs.left.scrollTop = (index > 7 ? index - 7 : 0) * 54;
-    },
-     increase(item, event) {
-      this.total++;
-      item.__v++;
+    //+
+    increase(item, event) {
+      // this.total++;
+      // item.num++;
+     
+      this.$store.commit("increase", item);
+      this.cunshopcar()
+      // console.log(item);
+      //  let arr={
+      //     name:item.name,
+      //     number:item.num,
+
+      //  }
 
       // 小球动画
       var top = event.clientY, // 小球降落起点
         left = event.clientX,
-        endTop = window.innerHeight - 30, // 小球降落终点
-        endLeft = 20;
+        endTop = window.innerHeight - 40, // 小球降落终点
+        endLeft = 60;
 
       // // 小球到达起点
       var outer = $("#points .pointPre")
@@ -206,26 +324,75 @@ export default {
           inner.removeAttr("style");
         }, 1000); //这里的延迟值和小球的运动时间相关
       }, 1);
-    },
-    reduce(item) {
-      this.total--;
-      item.__v--;
-    },
-    // 右侧菜单滑动
-    listScroll() {
-      // 为了达到联动效果，右侧滑动则改变左侧导航栏样式
-      var titles = document.getElementsByClassName("goodTitle");
 
-      for (var i = 0; i < titles.length; i++) {
-        var style = titles[i].getBoundingClientRect();
-        // console.log(style.top)
-        if (titles[i].getBoundingClientRect().top == 107) {
-          this.toHash(titles[i].innerHTML, i);
-        }
+       
+    },
+    //-
+    reduce(item) {
+      
+      // this.total--;
+      // item.num--;
+      this.$store.commit("reduce", item);
+    
+      this.cunshopcar()
+    },
+    //清空
+    clear() {
+        
+        this.$store.commit('clear')
+        localStorage.removeItem('shopCar')
+        localStorage.removeItem('All')
+        this.shopCar=[]
+        this.allnumber=0
+        this.allprice=0
+       this.cunshopcar()
+    },
+    //左边菜单
+    selectMenu(index, event) {
+      // console.log(index)
+      //      自己默认派发事件时候(BScroll),_constructed被置为true,但是浏览器原生并没有这个属性
+      if (!event._constructed) {
+        return;
+      }
+      //运用BScroll接口，滚动到相应位置
+      let foodList = this.$refs.right.getElementsByClassName("food-list-hook");
+      //获取对应元素的列表
+      let el = foodList[index];
+      this.foodScroll.scrollToElement(el, 300);
+    },
+    //右边列表
+    _initScroll() {
+      // 获得 滚动的菜单 的真是dom 元素
+      this.meunScroll = new BScroll(this.$refs.left, {
+        click: true
+      });
+      this.foodScroll = new BScroll(this.$refs.right, {
+        click: true,
+        //探针作用，实时监测滚动位置
+        probeType: 3
+      });
+      //设置监听滚动位置
+      this.foodScroll.on("scroll", pos => {
+        //scrollY接收变量
+        // console.log(pos);
+        this.scrollY = Math.abs(Math.round(pos.y));
+      });
+    },
+    _calculateHeight() {
+      let foodList = this.$refs.right.getElementsByClassName("food-list-hook");
+      let height = 0;
+      //把第一个高度送入数组
+      this.listHeight.push(height);
+      //通过循环foodList下的dom结构，将每一个li的高度依次送入数组
+      for (let i = 0; i < foodList.length; i++) {
+        let item = foodList[i];
+        height += item.clientHeight;
+        this.listHeight.push(height);
       }
     }
   },
   mounted() {
+    this.num = this.num - 1;
     //头部
     this.axios
       .get(
@@ -236,7 +403,9 @@ export default {
       .then(res => {
         if (res.data && res.data.activities.length > 0) {
           this.userlist = res.data;
+          // console.log(this.userlist);
           this.activitylist = res.data.activities[0];
+
           // console.log(res.data)
           // console.log(this.userlist.activities.length)
         } else {
@@ -245,15 +414,46 @@ export default {
         }
       });
     //商品内容
+    this.classMap = ["decrease", "discount", "guarantee", "invoice", "special"];
     this.axios
       .get(
         "http://elm.cangdu.org/shopping/v2/menu?restaurant_id=" +
           this.$route.params.id
       )
       .then(res => {
-        this.shop = res.data;
+        if (res.status == 200) {
+          this.num = this.num + 1;
+          res.data.map(item => {
+            item.foods.map(i => {
+              i.num = 0;
+            });
+          });
+          this.shop = res.data;
+          // 初始化 _initScroll 滚动事件
+          this._initScroll();
+          //计算高度
+          this._calculateHeight();
+          // console.log(this.shop);
+        }
         // console.log(this.shop)
       });
+      this.cunshopcar()
+  },
+  computed: {
+    currentIndex() {
+      for (let i = 0; i < this.listHeight.length; i++) {
+        //[0,200,400...]
+        //判断当currentIndex在height1和height2之间的时候显示
+        let height1 = this.listHeight[i];
+        let height2 = this.listHeight[i + 1];
+        //          console.log('height1:'+height1+','+'height2:'+height2)
+        //最后一个区间没有height2
+        if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
+          return i;
+        }
+      }
+      return 0;
+    }
   }
 };
 </script>
@@ -263,11 +463,14 @@ export default {
   padding: 0;
   margin: 0;
 }
-a{
+[v-cloak] {
+  display: none;
+}
+a {
   text-decoration: none;
   color: #555;
 }
-.box {
+.box,.box1 {
   width: 100%;
   height: 100%;
 }
@@ -371,10 +574,13 @@ section {
           text-align: center;
           border-bottom: 1px solid #ccc;
           font-size: 0.8rem;
-          
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
-        .click {
+        .current {
           background: #fff;
+          border-left: 2px solid #3792e5;
         }
       }
     }
@@ -414,6 +620,9 @@ section {
               h2 {
                 font-size: 0.8rem;
                 padding-top: 0.3rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
               }
               p:nth-of-type(1) {
                 font-size: 0.6rem;
@@ -422,7 +631,11 @@ section {
               }
               p:nth-of-type(2) {
                 font-size: 0.6rem;
-                padding-top: 0.3rem;
+                padding-top: 0.2rem;
+              }
+              p:nth-of-type(3) {
+                font-size: 0.6rem;
+                padding-top: 0.2rem;
               }
             }
           }
@@ -445,100 +658,9 @@ section {
           }
         }
       }
-      // .aa {
-      //   width: 100%;
-      //   h1 {
-      //     background: #eeeeee;
-      //     font-size: 0.8rem;
-      //     padding: 0.6rem 0.2rem;
-      //     span {
-      //       font-size: 0.7rem;
-      //       color: #cccccc;
-      //     }
-      //   }
-
-      //   dl {
-      //     display: flex;
-      //     padding: 0.5rem;
-      //     background-color: #fff;
-      //     dt {
-      //       width: 30%;
-      //       img {
-      //         width: 3.5rem;
-      //       }
-      //     }
-      //     dd {
-      //       width: 70%;
-      //       h2 {
-      //         font-size: 0.8rem;
-      //         padding-top: 0.3rem;
-      //       }
-      //       p:nth-of-type(1) {
-      //         font-size: 0.6rem;
-      //         color: #cccccc;
-      //         padding-top: 0.3rem;
-      //       }
-      //       p:nth-of-type(2) {
-      //         font-size: 0.6rem;
-      //         padding-top: 0.3rem;
-      //       }
-      //       p:nth-of-type(3) {
-      //         span {
-      //           font-size: 0.6rem;
-      //           color: chocolate;
-      //           font-weight: bold;
-      //           padding-top: 0.3rem;
-      //         }
-      //       }
-      //     }
-      //   }
-      // }
     }
   }
 }
-// footer {
-//   width: 100%;
-//   height: 2.5rem;
-//   background: #333333;
-//   display: flex;
-//   div:nth-of-type(1) {
-//     width: 65%;
-//     display: flex;
-//     i {
-//       font-size: 2rem;
-//       color: #fff;
-//       padding-left: 0.5rem;
-//     }
-//     & > div {
-//     }
-//     // p {
-//     //   padding-left: 1rem;
-//     //   span:nth-of-type(1) {
-//     //     display: block;
-//     //     font-size: 1rem;
-//     //     color: white;
-//     //     font-weight: bold;
-//     //   }
-//     //   span:nth-of-type(2) {
-//     //     display: block;
-//     //     font-size: 0.6rem;
-//     //     color: white;
-//     //     font-weight: bold;
-//     //   }
-//     // }
-//   }
-//   div:nth-of-type(2) {
-//     background: #555555;
-//     width: 35%;
-//     p {
-//       font-weight: bold;
-//       font-size: 0.9rem;
-//       text-align: center;
-//       line-height: 2.5rem;
-//       color: white;
-//     }
-//   }
-// }
 
 .right li h1 {
   padding-left: 5%;
@@ -589,27 +711,84 @@ section {
   line-height: 50px;
   bottom: 0;
   position: fixed;
-  font-size: 45px;
+  font-size: 30px;
   padding-left: 10px;
   display: flex;
   justify-content: space-between;
   box-sizing: border-box;
+  .span1 {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.8rem;
+    z-index: 120;
+    display: inline-block;
+    width: 2.8rem;
+    height: 2.8rem;
+    background:#555;
+    border-radius: 50%;
+    font-size: 0.45rem;
+    line-height: 2.8rem;
+    border: 0.15rem solid #444444;
+    text-align: center;
+    i {
+      color: white;
+      font-size: 1.5rem;
+    }
+  }
+  .span2 {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.8rem;
+    z-index: 120;
+    display: inline-block;
+    width: 2.8rem;
+    height: 2.8rem;
+    background: #00a0dc;
+    border-radius: 50%;
+    font-size: 0.45rem;
+    line-height: 2.8rem;
+    border: 0.15rem solid #444444;
+    text-align: center;
+    i {
+      color: white;
+      font-size: 1.5rem;
+    }
+  }
+
 }
-.footer i {
-  color: #fff;
-}
+// .footer i {
+//   color: #fff;
+//   font-size: 35px;
+// }
 .footer .total {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  top: 0px;
-  left: 46px;
+  width: 15px;
+  height: 15px;
+  top: -10px;
+  left: 58px;
   color: #fff;
-  line-height: 20px;
+  line-height: 15px;
   text-align: center;
   border-radius: 10px;
-  background-color: #00a0dc;
-  font-size: 10px;
+  background-color: red;
+  font-size: 8px;
+  z-index: 150;
+}
+.pri{
+  margin-top: -10px;
+  margin-left: 80px;
+  p:nth-of-type(1){
+    font-size: 1.2rem;
+    font-weight: bold;
+    height: 20px;
+    color: white;
+  }
+  p:nth-of-type(2){
+    font-size: 0.7rem;
+    height: 20px;
+    color: white;
+  }
+
 }
 .pay {
   /* background-color: rgb(78, 207, 45); */
@@ -643,5 +822,77 @@ section {
   /* 过渡属性名称 过渡时间 过渡曲线 延迟时间 */
   transition: all 1s ease 0s;
   -webkit-transition: all 1s ease 0s;
+}
+
+.shopcar {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  z-index: 99;
+  background: rgba(150, 150, 150, 0.5);
+  .gwc {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    .gwc_shop {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      z-index: 99;
+      width: 100%;
+      background: #f1f1f1;
+      .header_top {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.4rem;
+        h3 {
+          font-size: 0.7rem;
+        }
+        p {
+          font-size: 0.7rem;
+        }
+      }
+      .footer_down {
+        width: 100%;
+        background: white;
+        ul {
+          list-style: none;
+          width: 100%;
+          li {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0.2rem 0.4rem;
+            p:nth-of-type(1) {
+              font-size: 0.7rem;
+            }
+            p:nth-of-type(2) {
+              font-size: 0.7rem;
+              color: red;
+            }
+            p:nth-of-type(3) {
+              font-size: 0.7rem;
+              span:nth-of-type(1) {
+                margin-left: 0.2rem;
+                font-size: 0.8rem;
+                color: #3792e5;
+              }
+              span:nth-of-type(2) {
+                margin-left: 0.2rem;
+                font-size: 0.8rem;
+              }
+              span:nth-of-type(3) {
+                margin-left: 0.2rem;
+                font-size: 0.8rem;
+                color: #3792e5;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 </style>

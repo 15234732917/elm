@@ -1,98 +1,94 @@
 <template>
-    <div class="box">
-        <div class="content animated fadeInDown">
-            <h1>elm后台管理系统</h1>
-            <section>
-                <p><el-input  placeholder="请输入用户名" v-model="username"></el-input></p>
-                <p><el-input  placeholder="请输入密码" v-model="psw" show-password></el-input></p>
-                <p><el-button type="primary" @click="submit">登陆</el-button></p>
-                <p>温馨提示:</p>
-                <p>未登录过的新用户，自动注册</p>
-                <p>注册过的用户可凭账号密码登录</p>
-            </section>
-        </div>
+    <div class="menu">
+        <el-container>
+            <el-aside width="320px"><Aside></Aside></el-aside>
+            <el-container>
+                <el-header><Header></Header></el-header>
+                <el-main><keep-alive><router-view></router-view></keep-alive></el-main>
+            </el-container>
+        </el-container>
     </div>
 </template>
 
 <script>
+import Aside from './aside'
+import Header from './header'
+import { mapMutations } from 'vuex'
 export default {
-    data(){
+    components:{
+        Aside,
+        Header,
+    },
+    data() {
         return{
-            username:'',
-            psw:''
+            
         }
     },
+    mounted(){
+    },
     methods:{
-        submit(){
-            let obj={
-                user_name: this.username,
-                password: this.psw
+        ...mapMutations(['getAdminInfo']),
+        // getCookie(cookieName) {
+        //     var strCookie = document.cookie;
+        //     var arrCookie = strCookie.split(";");
+        //     for (var i = 0; i < arrCookie.length; i++) {
+        //         var arr = arrCookie[i].split("=");
+        //         if (cookieName == arr[0]) {
+        //         return arr[1];
+        //         }
+        //     }
+        //     return "";
+        // },
+    },
+    beforeRouteEnter(to,from,next){
+        //    let isLogin=getCookie('SID')
+        //    if(isLogin==true){
+        //        next(true)
+        //    }else{
+        //        next('/login')
+        //    }
+        next((vm)=>{  //next 函数的参数 vm就是vue实例
+            // console.log(vm)
+            var data=vm.$store.state.adminInfo
+            if(data.login===true){
+                next(true);
+            }else{
+                next('/login')
             }
-            this.axios.post("https://elm.cangdu.org/admin/login",obj)
-            .then((res)=>{
-                if(res){
-                    if(res.data.status==1) {
-                        this.$router.push({name:'menu'});
-                    }
-                    if(res.data.status==0){
-                        console.log(res.data.message);
-                    }
-                }
-            })
-        }
+        })
     }
 }
 </script>
 
-<style lang="scss" secoped>
-*{
-    margin: 0;
+<style lang="scss" scoped>
+.menu{
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box; 
+    display: flex; 
+    font-size: 14px;
+}
+  .el-header {
+    background-color: #eff2f7;
+    color: #333;
+    line-height: 60px;
+    font-size: 14px;
+  }
+  .el-main{
     padding: 0;
-    box-sizing: border-box;
 }
-.box{
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    background: #324057;
-}
-.content{
-    width: 100%;
-    height: 100%;
-    text-align: center;
-     h1{
-        margin-top: 250px;
-        font-size: 30px;
-        color: white;
-        text-align: center;
-    }
-    section{
-        background: white;
-        width: 360px;
-        height: 250px;
-        margin: 50px auto;
-        border-radius: 10px;
-        p{
-            padding: 0 20px;
-            font-size: 12px;
-            color: red;
-        }
-        p:nth-of-type(1){
-            padding: 20px 20px 0 20px;
-        }
-        p:nth-of-type(2){
-            margin-top: 20px;
-        }
-        p:nth-of-type(3){
-            margin-top: 20px;
-            button{
-                width: 320px;
-            }
-        }
-        p:nth-of-type(4){
-            margin-top: 10px;
-        }
-        
-    }
-}
+  .el-aside {
+    background-color: #D3DCE6;
+    color: #333;
+    width: 16.7% !important;
+    line-height: 200px;
+  }
+  
+  .el-main {
+    background-color: white;;
+    color: #333;
+  }
+  
+  
+
 </style>

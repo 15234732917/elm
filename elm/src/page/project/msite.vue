@@ -1,84 +1,87 @@
 <template>
   <div class="box">
+    <Load v-if="num !== 1"></Load>
     <head-top :signinUp="true" :headTitle="list.name" :gob="true"></head-top>
     <div class="middle">
       <div class="con">
-        <!-- <mt-swipe :auto='2000' @change="handleChange">
-              <mt-swipe-item v-for="(item,index) in foodTypes" :key="item.id">
-                  <ul>
-                      <router-link tag="li" :to="{path:'/food'}" v-for="foodItem in item" :key="foodItem.id">
-                        <img :src="'https://fuss10.elemecdn.com'+foodItem.image_url">
-                        <span>{{foodItem.title}}</span>
-                      </router-link>
-                  </ul>
-
-              </mt-swipe-item>
-        </mt-swipe>-->
         <div class="swiper-container" v-if="foodTypes.length">
           <ul class="swiper-wrapper">
-            <li class="swiper-slide" v-for="(item,index) in foodTypes" :key="index">
+            <li
+              class="swiper-slide"
+              v-for="(item, index) in foodTypes"
+              :key="index"
+            >
               <router-link
-                :to="{name:'food',params:{title:foodItem.title}}"
+                :to="{ name: 'food', params: { title: foodItem.title } }"
                 v-for="foodItem in item"
                 :key="foodItem.id"
                 class="link_to_food"
               >
                 <figure>
-                  <img :src="'https://fuss10.elemecdn.com'+foodItem.image_url">
-                  <figcaption>{{foodItem.title}}</figcaption>
+                  <img
+                    :src="'https://fuss10.elemecdn.com' + foodItem.image_url"
+                  />
+                  <figcaption>{{ foodItem.title }}</figcaption>
                 </figure>
               </router-link>
             </li>
           </ul>
           <div class="swiper-pagination"></div>
         </div>
+        <ul v-else class="animation_opactiy">
+          <li class="list_back_li" v-for="item in 1" :key="item">
+              <img src="../../images/src/fl.svg" class="list_back_svg">
+          </li>
+      </ul>
       </div>
       <div class="hr"></div>
       <div class="content">
         <p>
-          <img src="../../images/src/11.png">
+          <img src="../../images/src/11.png" />
           <span>附近商家</span>
         </p>
         <zhi-hu></zhi-hu>
       </div>
-     
     </div>
     <foo-ter></foo-ter>
   </div>
 </template>
 
 <script>
-
-import ZhiHu from './zhihu'
+import ZhiHu from "./zhihu";
 import FooTer from "../../components/footer/footer";
 import HeadTop from "../../components/header/head";
+import Load from "./animeta";
 import Swiper from "Swiper";
 import "../../style/swiper.min.css";
 export default {
   components: {
     HeadTop,
     FooTer,
-       ZhiHu
+    ZhiHu,
+    Load
   },
   data() {
     return {
       list: "",
-      foodTypes: []
+      foodTypes: [],
+      num: 1
     };
   },
   methods: {
     //  handleChange(index){
     //  }
-   
   },
 
   mounted() {
+    this.num = this.num - 1;
     this.axios
       .get("http://elm.cangdu.org/v2/pois/" + this.$route.params.geohash)
       .then(res => {
         // console.log(res.data)
         if (res.data) {
           this.list = res.data;
+          this.num = this.num + 1;
         }
       });
     this.axios
@@ -112,11 +115,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.box{
-width: 100%;
-height: 100%;
-display: flex;
-flex-direction: column;
+.box {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .middle {
   width: 100%;
@@ -144,38 +147,36 @@ flex-direction: column;
     //             }
 
     //         }
-    //  }                    
-    &>div{
+    //  }
+    & > div {
+      width: 100%;
+      ul {
         width: 100%;
-        ul {
-            width: 100%;
-            list-style: none;
-            display: flex;
-            li {
-                width: 100%;
-                text-align: center;
-                display: flex;
-                flex-wrap: wrap;
-                .link_to_food{
-                   width: 25%;
-                   text-decoration: none;
-                   figure{
-                       width: 100%;
-                       text-align: center;
-                       img{
-                           width: 2rem;
-                           height: 2rem;
-                       }
-                       figcaption{
-                           font-size: 0.5rem;
-                           color: #c7c7c7;
-                       }
-
-                   }
-                }
-            
+        list-style: none;
+        display: flex;
+        li {
+          width: 100%;
+          text-align: center;
+          display: flex;
+          flex-wrap: wrap;
+          .link_to_food {
+            width: 25%;
+            text-decoration: none;
+            figure {
+              width: 100%;
+              text-align: center;
+              img {
+                width: 2rem;
+                height: 2rem;
+              }
+              figcaption {
+                font-size: 0.5rem;
+                color: #c7c7c7;
+              }
             }
+          }
         }
+      }
     }
   }
   .hr {
@@ -185,7 +186,7 @@ flex-direction: column;
     background: #f5f5f5;
     height: 0.4rem;
   }
-   .content {
+  .content {
     & > p {
       display: flex;
       padding: 0.2rem;
@@ -200,9 +201,7 @@ flex-direction: column;
         height: 1.5rem;
       }
     }
-   }
-    
-  
+  }
 }
 // footer {
 //   width: 100%;

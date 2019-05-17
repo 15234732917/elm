@@ -1,48 +1,73 @@
 <template>
   <div class="box">
-    <div class="main-body" ref="wrapper">
-      <mt-loadmore :top-method="loadTop" :bottom-method="loadBottom" :bottom-all-loaded="allLoaded" ref="loadmore" :autoFill="isAutoFill">
-        <router-link tag="dl" :to="'/shop/'+$route.params.geohash+'/'+item.id" v-for="item in food" class="mui-table-view-cell mui-media mui-col-xs-6">
-        <!-- <dl v-for="item in food"> -->
+    <div class="main-body" ref="wrapper" v-if="food.length">
+      <mt-loadmore
+        :top-method="loadTop"
+        :bottom-method="loadBottom"
+        :bottom-all-loaded="allLoaded"
+        ref="loadmore"
+        :autoFill="isAutoFill"
+      >
+        <router-link
+          tag="dl"
+          :to="'/shop/' + $route.params.geohash + '/' + item.id"
+          v-for="item in food"
+          class="mui-table-view-cell mui-media mui-col-xs-6"
+        >
+          <!-- <dl v-for="item in food" @click="shop(item)"> -->
           <dt>
-            <img :src="'//elm.cangdu.org/img/'+item.image_path">
+            <img :src="'//elm.cangdu.org/img/' + item.image_path" />
           </dt>
           <dd>
             <ul>
               <li>
                 <p>
                   <span v-if="item.is_premium">品牌</span>
-                  <span>{{item.name}}</span>
+                  <span>{{ item.name }}</span>
                 </p>
                 <p>
-                  <span v-if="item.supports[0]">{{item.supports[0].icon_name}}</span>
-                  <span v-if="item.supports[1]">{{item.supports[1].icon_name}}</span>
-                  <span v-if="item.supports[2]">{{item.supports[2].icon_name}}</span>
+                  <span v-if="item.supports[0]">{{
+                    item.supports[0].icon_name
+                  }}</span>
+                  <span v-if="item.supports[1]">{{
+                    item.supports[1].icon_name
+                  }}</span>
+                  <span v-if="item.supports[2]">{{
+                    item.supports[2].icon_name
+                  }}</span>
                 </p>
               </li>
               <li>
                 <p>
-                  <span>⭐⭐⭐⭐⭐</span>
-                  <span>{{item.rating}}</span>
-                  <span>月售{{item.recent_order_num}}单</span>
+                  <span class="star">
+                    <span class="xing" :style="{ width: `${(100 * item.rating) / 5}%` }" ></span>
+                  </span>
+                  <span>{{ item.rating }}</span>
+                  <span>月售{{ item.recent_order_num }}单</span>
                 </p>
                 <p>
-                  <span v-if="item.delivery_mode">{{item.delivery_mode.text}}</span>
+                  <span v-if="item.delivery_mode">{{
+                    item.delivery_mode.text
+                  }}</span>
                   <span>准时到</span>
                 </p>
               </li>
               <li>
                 <p>
-                  <span>￥{{item.float_minimum_order_amount}}起送/{{item.piecewise_agent_fee.tips}}</span>
+                  <span
+                    >￥{{ item.float_minimum_order_amount }}起送/{{
+                      item.piecewise_agent_fee.tips
+                    }}</span
+                  >
                 </p>
                 <p>
-                  <span>{{item.distance}}/</span>
-                  <span>{{item.order_lead_time}}</span>
+                  <span>{{ item.distance }}/</span>
+                  <span>{{ item.order_lead_time }}</span>
                 </p>
               </li>
             </ul>
           </dd>
-          </router-link>
+        </router-link>
         <!-- </dl> -->
         <div slot="bottom" class="mint-loadmore-bottom">
           <span v-if="show">loading...</span>
@@ -50,6 +75,11 @@
         </div>
       </mt-loadmore>
     </div>
+    <ul v-else class="animation_opactiy">
+          <li class="list_back_li" v-for="item in 5" :key="item">
+              <img src="../../images/src/shopback.svg" class="list_back_svg">
+          </li>
+      </ul>
   </div>
 </template>
 
@@ -82,13 +112,28 @@ export default {
     //  handleChange(index){
 
     //  }
+    // shop(item){
+    //    this.$router.push('/shop/' + this.$route.params.geohash + '/' + item.id)
+    // },
     loadTop() {
       this.loadFrist();
     },
     loadBottom() {
       this.loadMore();
     },
-    loadFrist() {},
+    loadFrist() {
+        this.axios
+      .get(
+        "http://elm.cangdu.org/shopping/restaurants?latitude=39.99321&longitude=116.33855&offset=0&limit=30&extras[]=activities&keyword=&restaurant_category_id=&restaurant_category_ids[]=&order_by=&delivery_mode[]="
+      )
+      .then(res => {
+        this.allLoaded = false;
+        this.food = res.data;
+        // console.log(this.food);
+        this.$refs.loadmore.onTopLoaded();
+        // console.log(res.data)
+      });
+    },
     loadMore() {
       this.n += 3;
       this.axios
@@ -159,7 +204,7 @@ export default {
             }
             p:nth-of-type(2) {
               display: flex;
-              transform: scale(.8);
+              transform: scale(0.8);
               span:nth-of-type(1) {
                 font-size: 0.3rem;
                 display: block;
@@ -187,11 +232,24 @@ export default {
             justify-content: space-between;
             align-items: center;
             p:nth-of-type(1) {
-              transform: scale(.8);
+              transform: scale(0.8);
               margin-left: -0.7rem;
-              span:nth-of-type(1) {
-                font-size: 0.5rem;
-                color: #fed744;
+              .star {
+                margin-top: 0.1rem;
+                width: 2.5rem;
+                height: 0.8rem;
+                display: inline-block;
+                background: url("https://img-bbs.csdn.net/upload/201510/22/1445523252_651795.png")
+                  no-repeat;
+                background-size: 2.5rem 0.8rem;
+                .xing {
+                  width: 2.5rem;
+                  height: 0.8rem;
+                  display: inline-block;
+                  background: url("https://img-bbs.csdn.net/upload/201510/22/1445523260_910443.png")
+                    no-repeat;
+                  background-size: 2.5rem 0.8rem;
+                }
               }
               span:nth-of-type(2) {
                 font-size: 0.5rem;
@@ -206,7 +264,7 @@ export default {
             p:nth-of-type(2) {
               display: flex;
               span:nth-of-type(1) {
-                transform: scale(.8);
+                transform: scale(0.8);
                 font-size: 0.4rem;
                 padding: 0.1rem;
                 background: #3792e5;
@@ -214,7 +272,7 @@ export default {
               }
               span:nth-of-type(2) {
                 font-size: 0.5rem;
-                transform: scale(.8);
+                transform: scale(0.8);
                 border: 1px solid #3792e5;
                 color: #3792e5;
               }
@@ -225,7 +283,7 @@ export default {
             justify-content: space-between;
             align-items: center;
             p:nth-of-type(1) {
-              transform: scale(.8);
+              transform: scale(0.8);
               margin-left: -0.4rem;
               span:nth-of-type(1) {
                 font-size: 0.4rem;
@@ -233,8 +291,8 @@ export default {
               }
             }
             p:nth-of-type(2) {
-               transform: scale(.8);
-               margin-right: -0.3rem;
+              transform: scale(0.8);
+              margin-right: -0.3rem;
               span:nth-of-type(1) {
                 font-size: 0.4rem;
                 color: #9b9b9b;

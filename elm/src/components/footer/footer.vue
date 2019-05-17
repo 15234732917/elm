@@ -2,11 +2,11 @@
   <div>
     <footer>
       <ul>
-        <router-link tag="li" to="/msite/:geohash">
+        <router-link tag="li" :to="'/msite/'+this.geohash">
           <img src="../../images/src/19.jpg">
           <span>外卖</span>
         </router-link>
-        <router-link tag="li" to="/search">
+        <router-link tag="li" :to="'/search/'+this.geohash">
           <img src="../../images/src/20.jpg">
           <span>搜索</span>
         </router-link>
@@ -24,7 +24,16 @@
 </template>
 
 <script>
-export default {};
+export default {
+  data(){
+    return{
+        geohash:'',    
+    }
+  },
+  mounted(){
+        this.geohash=JSON.parse(localStorage.getItem('geohash'))
+  }
+};
 </script>
 
 <style lang="scss" scoped>

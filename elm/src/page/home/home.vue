@@ -1,13 +1,6 @@
 <template>
   <div>
-    <!-- <header>
-      <p>ele.me</p>
-      <p></p>
-      <p>
-        <img src="../../images/src/2.png" alt>
-      </p>
-    </header> -->
-     <head-top :signinUp="true"  :goback="false">
+     <head-top :signinUp="false"  :goback="false">
           <p slot="logo" class="head_logo">ele.me</p>
      </head-top>
     <div class="city">
@@ -18,7 +11,7 @@
           <span>定位不准时，请在城市列表中选择</span>
         </p>
         <p>
-          <router-link tag="span" to="/city">{{guess.name}}</router-link>
+          <router-link tag="span" :to="{name:'city',params:{cityid:guess.id}}">{{guess.name}}</router-link>
           <span></span>
           <!-- <span><img src="../../static/src/15.png"></span> -->
           <span>

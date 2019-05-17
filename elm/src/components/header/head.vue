@@ -10,7 +10,7 @@
       </svg>
     </section>
     
-    <router-link tag="section" to="/search" v-if="gob" class="head_gob"> 
+    <router-link tag="section" to="/search/geohash" v-if="gob" class="head_gob"> 
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1">
             <circle cx="8" cy="8" r="7" stroke="rgb(255,255,255)" stroke-width="1" fill="none"></circle> 
             <line x1="14" y1="14" x2="20" y2="20" style="stroke: rgb(255, 255, 255); stroke-width: 2;"></line>
@@ -24,8 +24,10 @@
     </section>
     
     <!-- 用户登录显示 -->
-    <router-link :to="false? '/profile':'/login'" v-if="signinUp" class="head_login">
-        <img v-if="false" src="https://sb2b.shazimeiyoufaxian.com/70kgDvnSh_QwerGkhhy/it/use">
+    <router-link :to="this.user_id? '/profile':'/userlogin'" v-if="signinUp" class="head_login">
+        <!-- <img v-if="false" src="https://sb2b.shazimeiyoufaxian.com/70kgDvnSh_QwerGkhhy/it/use"> -->
+        <svg v-if="false" class="user_avatar"><use xmlns:xlink="http://www.w3.org/1999/xlink" ></use></svg>
+        <!-- <i v-if="false" class="fa fa-user-o"></i> -->
        <span class="login_span" v-else>登录|注册</span>
     </router-link>
     
@@ -42,7 +44,12 @@ export default {
     data(){
         return{
            false:false,
+           user_id:''
         }
+    },
+    mounted(){
+        let user_id=localStorage.getItem('vuex')
+        this.user_id=user_id
     }
 };
 </script>
@@ -78,5 +85,10 @@ export default {
 .head_gob{
     width: 1.3rem;
     height: 1rem;
+}
+.user_avatar{
+    fill: #fff;
+    width: .8rem;
+    height: .8rem;
 }
 </style>
